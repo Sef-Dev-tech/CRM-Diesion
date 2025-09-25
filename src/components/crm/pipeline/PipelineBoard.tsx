@@ -3,6 +3,9 @@ import { Card } from "@/components/ui/card";
 import { PipelineColumn } from "./PipelineColumn";
 import { OpportunityCard } from "./OpportunityCard";
 import { AddOpportunityDialog } from "./AddOpportunityDialog";
+import { AddAccountDialog } from "../accounts/AddAccountDialog";
+import { AddContactDialog } from "../contacts/AddContactDialog";
+import { Account, Contact } from "../accounts/types";
 
 export interface Opportunity {
   id: string;
@@ -74,8 +77,68 @@ const mockOpportunities: Opportunity[] = [
   },
 ];
 
+const mockAccounts: Account[] = [
+  {
+    id: '1',
+    companyName: 'Empresa ABC Ltda',
+    cnpj: '12.345.678/0001-90',
+    address: 'Rua das Flores, 123, São Paulo, SP, 01234-567',
+    responsible: 'Ana Costa',
+    createdAt: '2024-01-01',
+  },
+  {
+    id: '2',
+    companyName: 'Tech Solutions',
+    cnpj: '98.765.432/0001-10',
+    address: 'Av. Paulista, 456, São Paulo, SP, 01310-100',
+    responsible: 'Carlos Lima',
+    createdAt: '2024-01-02',
+  },
+];
+
+const mockContacts: Contact[] = [
+  {
+    id: '1',
+    fullName: 'João Silva',
+    email: 'joao@empresaabc.com',
+    phone: '(11) 99999-1111',
+    accountId: '1',
+    leadSource: 'Website',
+    createdAt: '2024-01-15',
+  },
+  {
+    id: '2',
+    fullName: 'Maria Santos',
+    email: 'maria@techsolutions.com',
+    phone: '(11) 99999-2222',
+    accountId: '2',
+    leadSource: 'Indicação',
+    createdAt: '2024-01-10',
+  },
+];
+
 export function PipelineBoard() {
   const [opportunities, setOpportunities] = useState<Opportunity[]>(mockOpportunities);
+  const [accounts, setAccounts] = useState<Account[]>(mockAccounts);
+  const [contacts, setContacts] = useState<Contact[]>(mockContacts);
+
+  const addAccount = (accountData: Omit<Account, 'id' | 'createdAt'>) => {
+    const newAccount: Account = {
+      ...accountData,
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString().split('T')[0],
+    };
+    setAccounts(prev => [...prev, newAccount]);
+  };
+
+  const addContact = (contactData: Omit<Contact, 'id' | 'createdAt'>) => {
+    const newContact: Contact = {
+      ...contactData,
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString().split('T')[0],
+    };
+    setContacts(prev => [...prev, newContact]);
+  };
 
   const addOpportunity = (opportunityData: Omit<Opportunity, 'id' | 'isLost' | 'createdAt' | 'timeInStage'>) => {
     const newOpportunity: Opportunity = {
@@ -127,7 +190,11 @@ export function PipelineBoard() {
             <h1 className="text-2xl font-semibold text-foreground">Pipeline de Vendas</h1>
             <p className="text-muted-foreground">Gerencie suas oportunidades no funil de vendas</p>
           </div>
-          <AddOpportunityDialog onAddOpportunity={addOpportunity} />
+          <div className="flex items-center gap-3">
+            <AddAccountDialog onAddAccount={addAccount} />
+            <AddContactDialog accounts={accounts} onAddContact={addContact} />
+            <AddOpportunityDialog onAddOpportunity={addOpportunity} />
+          </div>
         </div>
       </div>
 
