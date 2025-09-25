@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AddAccountDialog } from "./AddAccountDialog";
 import { Account } from "./types";
-import { Building2, MapPin, User } from "lucide-react";
+import { Building2, MapPin, User, Grid3X3, List } from "lucide-react";
 
 const mockAccounts: Account[] = [
   {
@@ -26,6 +28,7 @@ const mockAccounts: Account[] = [
 
 export function AccountsPage() {
   const [accounts, setAccounts] = useState<Account[]>(mockAccounts);
+  const [viewMode, setViewMode] = useState<'cards' | 'list'>('cards');
 
   const addAccount = (accountData: Omit<Account, 'id' | 'createdAt'>) => {
     const newAccount: Account = {
@@ -45,7 +48,27 @@ export function AccountsPage() {
             <h1 className="text-2xl font-semibold text-foreground">Gestão de Contas</h1>
             <p className="text-muted-foreground">Gerencie todas as empresas cadastradas</p>
           </div>
-          <AddAccountDialog onAddAccount={addAccount} />
+          <div className="flex items-center gap-2">
+            <div className="flex items-center border rounded-lg p-1">
+              <Button
+                variant={viewMode === 'cards' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('cards')}
+                className="h-8 px-2"
+              >
+                <Grid3X3 className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+                className="h-8 px-2"
+              >
+                <List className="h-4 w-4" />
+              </Button>
+            </div>
+            <AddAccountDialog onAddAccount={addAccount} />
+          </div>
         </div>
       </div>
 
@@ -86,43 +109,78 @@ export function AccountsPage() {
         </div>
 
         {/* Accounts List */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {accounts.map(account => (
-            <Card key={account.id} className="p-4 hover:shadow-md transition-shadow">
-              <div className="space-y-3">
-                <div className="flex items-start justify-between">
-                  <h3 className="font-semibold text-foreground">{account.companyName}</h3>
-                  <Badge variant="outline" className="text-xs">
-                    Ativa
-                  </Badge>
-                </div>
-                
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  <div className="flex items-start gap-2">
-                    <Building2 className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                    <span>{account.cnpj || 'CNPJ não informado'}</span>
+        {viewMode === 'cards' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {accounts.map(account => (
+              <Card key={account.id} className="p-4 hover:shadow-md transition-shadow">
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between">
+                    <h3 className="font-semibold text-foreground">{account.companyName}</h3>
+                    <Badge variant="outline" className="text-xs">
+                      Ativa
+                    </Badge>
                   </div>
                   
-                  <div className="flex items-start gap-2">
-                    <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                    <span className="line-clamp-2">{account.address}</span>
+                  <div className="space-y-2 text-sm text-muted-foreground">
+                    <div className="flex items-start gap-2">
+                      <Building2 className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                      <span>{account.cnpj || 'CNPJ não informado'}</span>
+                    </div>
+                    
+                    <div className="flex items-start gap-2">
+                      <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                      <span className="line-clamp-2">{account.address}</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4 flex-shrink-0" />
+                      <span>{account.responsible}</span>
+                    </div>
                   </div>
                   
-                  <div className="flex items-center gap-2">
-                    <User className="h-4 w-4 flex-shrink-0" />
-                    <span>{account.responsible}</span>
+                  <div className="pt-2 border-t">
+                    <p className="text-xs text-muted-foreground">
+                      Criado em {new Date(account.createdAt).toLocaleDateString('pt-BR')}
+                    </p>
                   </div>
                 </div>
-                
-                <div className="pt-2 border-t">
-                  <p className="text-xs text-muted-foreground">
-                    Criado em {new Date(account.createdAt).toLocaleDateString('pt-BR')}
-                  </p>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <Card>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Empresa</TableHead>
+                  <TableHead>CNPJ</TableHead>
+                  <TableHead>Endereço</TableHead>
+                  <TableHead>Responsável</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Data</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {accounts.map(account => (
+                  <TableRow key={account.id}>
+                    <TableCell className="font-medium">{account.companyName}</TableCell>
+                    <TableCell>{account.cnpj || 'Não informado'}</TableCell>
+                    <TableCell className="max-w-xs truncate">{account.address}</TableCell>
+                    <TableCell>{account.responsible}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-xs">
+                        Ativa
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {new Date(account.createdAt).toLocaleDateString('pt-BR')}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
+        )}
 
         {/* Empty State */}
         {accounts.length === 0 && (

@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AddUserDialog } from "./AddUserDialog";
 import { User } from "./types";
-import { Mail, User as UserIcon, Shield, Users as UsersIcon } from "lucide-react";
+import { Mail, User as UserIcon, Shield, Users as UsersIcon, Grid3X3, List } from "lucide-react";
 
 const mockUsers: User[] = [
   {
@@ -34,6 +36,7 @@ const mockUsers: User[] = [
 
 export function UsersPage() {
   const [users, setUsers] = useState<User[]>(mockUsers);
+  const [viewMode, setViewMode] = useState<'cards' | 'list'>('cards');
 
   const handleAddUser = (userData: Omit<User, 'id' | 'createdAt'>) => {
     const newUser: User = {
@@ -59,44 +62,98 @@ export function UsersPage() {
           <h2 className="text-2xl font-semibold">Usuários</h2>
           <p className="text-muted-foreground">Gerencie os usuários do sistema</p>
         </div>
-        <AddUserDialog onAddUser={handleAddUser} />
+        <div className="flex items-center gap-2">
+          <div className="flex items-center border rounded-lg p-1">
+            <Button
+              variant={viewMode === 'cards' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('cards')}
+              className="h-8 px-2"
+            >
+              <Grid3X3 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('list')}
+              className="h-8 px-2"
+            >
+              <List className="h-4 w-4" />
+            </Button>
+          </div>
+          <AddUserDialog onAddUser={handleAddUser} />
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {users.map((user) => (
-          <Card key={user.id} className="hover:shadow-md transition-shadow">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <CardTitle className="text-lg">{user.name}</CardTitle>
-                <Badge variant={getRoleBadgeVariant(user.role)} className="ml-2">
-                  <Shield className="h-3 w-3 mr-1" />
-                  {getRoleLabel(user.role)}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Mail className="h-4 w-4" />
-                  <span>{user.email}</span>
+      {viewMode === 'cards' ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {users.map((user) => (
+            <Card key={user.id} className="hover:shadow-md transition-shadow">
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <CardTitle className="text-lg">{user.name}</CardTitle>
+                  <Badge variant={getRoleBadgeVariant(user.role)} className="ml-2">
+                    <Shield className="h-3 w-3 mr-1" />
+                    {getRoleLabel(user.role)}
+                  </Badge>
                 </div>
-                
-                {user.department && (
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <UsersIcon className="h-4 w-4" />
-                    <span>{user.department}</span>
+                    <Mail className="h-4 w-4" />
+                    <span>{user.email}</span>
                   </div>
-                )}
-                
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <UserIcon className="h-4 w-4" />
-                  <span>Criado em {new Date(user.createdAt).toLocaleDateString('pt-BR')}</span>
+                  
+                  {user.department && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <UsersIcon className="h-4 w-4" />
+                      <span>{user.department}</span>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <UserIcon className="h-4 w-4" />
+                    <span>Criado em {new Date(user.createdAt).toLocaleDateString('pt-BR')}</span>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <Card>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nome</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Departamento</TableHead>
+                <TableHead>Função</TableHead>
+                <TableHead>Data</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell className="font-medium">{user.name}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{user.department || 'Não informado'}</TableCell>
+                  <TableCell>
+                    <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">
+                      <Shield className="h-3 w-3 mr-1" />
+                      {getRoleLabel(user.role)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {new Date(user.createdAt).toLocaleDateString('pt-BR')}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Card>
+      )}
       
       {users.length === 0 && (
         <Card>
