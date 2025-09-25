@@ -100,7 +100,7 @@ export function AccountsPage() {
                 <div className="space-y-2 text-sm text-muted-foreground">
                   <div className="flex items-start gap-2">
                     <Building2 className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                    <span>{account.cnpj}</span>
+                    <span>{account.cnpj || 'CNPJ não informado'}</span>
                   </div>
                   
                   <div className="flex items-start gap-2">

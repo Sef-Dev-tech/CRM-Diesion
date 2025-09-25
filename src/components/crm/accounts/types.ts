@@ -1,7 +1,7 @@
 export interface Account {
   id: string;
   companyName: string;
-  cnpj: string;
+  cnpj?: string;
   address: string;
   responsible: string;
   createdAt: string;

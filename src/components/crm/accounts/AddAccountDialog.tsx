@@ -12,14 +12,14 @@ import { useToast } from "@/hooks/use-toast";
 
 const accountSchema = z.object({
   companyName: z.string().trim().min(1, "Nome da empresa é obrigatório").max(100),
-  cnpj: z.string().trim().min(14, "CNPJ deve ter 14 dígitos").max(18),
+  cnpj: z.string().trim().optional(),
   address: z.string().trim().min(1, "Endereço é obrigatório").max(200),
   responsible: z.string().trim().min(1, "Responsável é obrigatório").max(100),
 });
 
 type AccountFormData = {
   companyName: string;
-  cnpj: string;
+  cnpj?: string;
   address: string;
   responsible: string;
 };
@@ -85,7 +85,7 @@ export function AddAccountDialog({ onAddAccount }: AddAccountDialogProps) {
               name="cnpj"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>CNPJ</FormLabel>
+                  <FormLabel>CNPJ (Opcional)</FormLabel>
                   <FormControl>
                     <Input placeholder="00.000.000/0001-00" {...field} />
                   </FormControl>
