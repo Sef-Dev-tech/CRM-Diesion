@@ -3,8 +3,6 @@ import { Card } from "@/components/ui/card";
 import { PipelineColumn } from "./PipelineColumn";
 import { OpportunityCard } from "./OpportunityCard";
 import { AddOpportunityDialog } from "./AddOpportunityDialog";
-import { AddAccountDialog } from "../accounts/AddAccountDialog";
-import { AddContactDialog } from "../contacts/AddContactDialog";
 import { Account, Contact } from "../accounts/types";
 
 export interface Opportunity {
@@ -119,26 +117,6 @@ const mockContacts: Contact[] = [
 
 export function PipelineBoard() {
   const [opportunities, setOpportunities] = useState<Opportunity[]>(mockOpportunities);
-  const [accounts, setAccounts] = useState<Account[]>(mockAccounts);
-  const [contacts, setContacts] = useState<Contact[]>(mockContacts);
-
-  const addAccount = (accountData: Omit<Account, 'id' | 'createdAt'>) => {
-    const newAccount: Account = {
-      ...accountData,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString().split('T')[0],
-    };
-    setAccounts(prev => [...prev, newAccount]);
-  };
-
-  const addContact = (contactData: Omit<Contact, 'id' | 'createdAt'>) => {
-    const newContact: Contact = {
-      ...contactData,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString().split('T')[0],
-    };
-    setContacts(prev => [...prev, newContact]);
-  };
 
   const addOpportunity = (opportunityData: Omit<Opportunity, 'id' | 'isLost' | 'createdAt' | 'timeInStage'>) => {
     const newOpportunity: Opportunity = {
@@ -190,11 +168,7 @@ export function PipelineBoard() {
             <h1 className="text-2xl font-semibold text-foreground">Pipeline de Vendas</h1>
             <p className="text-muted-foreground">Gerencie suas oportunidades no funil de vendas</p>
           </div>
-          <div className="flex items-center gap-3">
-            <AddAccountDialog onAddAccount={addAccount} />
-            <AddContactDialog accounts={accounts} onAddContact={addContact} />
-            <AddOpportunityDialog onAddOpportunity={addOpportunity} />
-          </div>
+          <AddOpportunityDialog onAddOpportunity={addOpportunity} />
         </div>
       </div>
 

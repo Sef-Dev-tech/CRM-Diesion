@@ -1,6 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PipelineBoard } from "@/components/crm/pipeline/PipelineBoard";
 import { DashboardStats } from "@/components/crm/dashboard/DashboardStats";
+import { AccountsPage } from "@/components/crm/accounts/AccountsPage";
+import { ContactsPage } from "@/components/crm/contacts/ContactsPage";
 import { BarChart3, Kanban, Users, Building } from "lucide-react";
 
 const Index = () => {
@@ -53,23 +55,11 @@ const Index = () => {
             </TabsContent>
 
             <TabsContent value="accounts" className="space-y-6">
-              <div className="flex items-center justify-center h-96 bg-card rounded-lg border border-border">
-                <div className="text-center">
-                  <Building className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-foreground mb-2">Gestão de Contas</h3>
-                  <p className="text-muted-foreground">Em breve - Cadastro e gestão de empresas</p>
-                </div>
-              </div>
+              <AccountsPage />
             </TabsContent>
 
             <TabsContent value="contacts" className="space-y-6">
-              <div className="flex items-center justify-center h-96 bg-card rounded-lg border border-border">
-                <div className="text-center">
-                  <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-foreground mb-2">Gestão de Contatos</h3>
-                  <p className="text-muted-foreground">Em breve - Cadastro e gestão de contatos</p>
-                </div>
-              </div>
+              <ContactsPage />
             </TabsContent>
           </div>
         </Tabs>
