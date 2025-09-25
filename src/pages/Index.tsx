@@ -3,9 +3,13 @@ import { PipelineBoard } from "@/components/crm/pipeline/PipelineBoard";
 import { DashboardStats } from "@/components/crm/dashboard/DashboardStats";
 import { AccountsPage } from "@/components/crm/accounts/AccountsPage";
 import { ContactsPage } from "@/components/crm/contacts/ContactsPage";
-import { BarChart3, Kanban, Users, Building } from "lucide-react";
+import { UsersPage } from "@/components/crm/users/UsersPage";
+import { useAuth } from "@/hooks/useAuth";
+import { BarChart3, Kanban, Users, Building, UserCheck } from "lucide-react";
 
 const Index = () => {
+  const { isAdmin } = useAuth();
+  
   return (
     <div className="min-h-screen bg-background">
       {/* Main Header */}
@@ -23,7 +27,7 @@ const Index = () => {
       {/* Main Content */}
       <main className="p-6">
         <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="grid w-full max-w-md grid-cols-4 bg-muted">
+          <TabsList className={`grid w-full ${isAdmin ? 'max-w-2xl grid-cols-5' : 'max-w-md grid-cols-4'} bg-muted`}>
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
               Dashboard
@@ -40,6 +44,12 @@ const Index = () => {
               <Users className="h-4 w-4" />
               Contatos
             </TabsTrigger>
+            {isAdmin && (
+              <TabsTrigger value="users" className="flex items-center gap-2">
+                <UserCheck className="h-4 w-4" />
+                Usuários
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <div className="mt-6">
@@ -61,6 +71,12 @@ const Index = () => {
             <TabsContent value="contacts" className="space-y-6">
               <ContactsPage />
             </TabsContent>
+
+            {isAdmin && (
+              <TabsContent value="users" className="space-y-6">
+                <UsersPage />
+              </TabsContent>
+            )}
           </div>
         </Tabs>
       </main>
