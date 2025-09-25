@@ -13,6 +13,7 @@ interface PipelineColumnProps {
   totalValue: number;
   onMoveOpportunity: (opportunityId: string, newStage: Opportunity['stage']) => void;
   onMarkAsLost: (opportunityId: string, reason: string) => void;
+  onMarkAsWon: (opportunityId: string) => void;
 }
 
 export function PipelineColumn({ 
@@ -20,7 +21,8 @@ export function PipelineColumn({
   opportunities, 
   totalValue, 
   onMoveOpportunity, 
-  onMarkAsLost 
+  onMarkAsLost,
+  onMarkAsWon 
 }: PipelineColumnProps) {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -77,6 +79,7 @@ export function PipelineColumn({
               key={opportunity.id}
               opportunity={opportunity}
               onMarkAsLost={onMarkAsLost}
+              onMarkAsWon={onMarkAsWon}
             />
           ))}
 
@@ -86,6 +89,7 @@ export function PipelineColumn({
               key={opportunity.id}
               opportunity={opportunity}
               onMarkAsLost={onMarkAsLost}
+              onMarkAsWon={onMarkAsWon}
             />
           ))}
 

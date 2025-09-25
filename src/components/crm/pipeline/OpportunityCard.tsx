@@ -6,14 +6,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Opportunity } from "./PipelineBoard";
-import { Building, User, Calendar, Clock, X } from "lucide-react";
+import { Building, User, Calendar, Clock, X, CheckCircle } from "lucide-react";
 
 interface OpportunityCardProps {
   opportunity: Opportunity;
   onMarkAsLost: (opportunityId: string, reason: string) => void;
+  onMarkAsWon: (opportunityId: string) => void;
 }
 
-export function OpportunityCard({ opportunity, onMarkAsLost }: OpportunityCardProps) {
+export function OpportunityCard({ opportunity, onMarkAsLost, onMarkAsWon }: OpportunityCardProps) {
   const [isLossDialogOpen, setIsLossDialogOpen] = useState(false);
   const [lossReason, setLossReason] = useState('');
 
@@ -40,6 +41,30 @@ export function OpportunityCard({ opportunity, onMarkAsLost }: OpportunityCardPr
     }
   };
 
+  const getStatusBadge = () => {
+    switch (opportunity.status) {
+      case 'perdida':
+        return (
+          <Badge variant="destructive" className="text-xs">
+            Perdida
+          </Badge>
+        );
+      case 'ganha':
+        return (
+          <Badge className="bg-green-600 hover:bg-green-700 text-white text-xs">
+            Ganha
+          </Badge>
+        );
+      case 'em-andamento':
+      default:
+        return (
+          <Badge className="bg-blue-600 hover:bg-blue-700 text-white text-xs">
+            Em andamento
+          </Badge>
+        );
+    }
+  };
+
   return (
     <Card 
       className={`p-4 cursor-move transition-all duration-200 hover:shadow-medium ${
@@ -47,57 +72,74 @@ export function OpportunityCard({ opportunity, onMarkAsLost }: OpportunityCardPr
           ? 'opacity-60 bg-muted border-pipeline-lost' 
           : 'bg-card hover:shadow-soft border-border'
       }`}
-      draggable={!opportunity.isLost}
+      draggable={!opportunity.isLost && opportunity.status === 'em-andamento'}
       onDragStart={handleDragStart}
     >
-      {/* Header with value and loss indicator */}
+      {/* Status Badge */}
+      <div className="mb-3">
+        {getStatusBadge()}
+      </div>
+
+      {/* Header with value and action buttons */}
       <div className="flex items-start justify-between mb-3">
         <div className="font-semibold text-lg text-primary">
           {formatCurrency(opportunity.value)}
         </div>
         
-        {!opportunity.isLost && (
-          <Dialog open={isLossDialogOpen} onOpenChange={setIsLossDialogOpen}>
-            <DialogTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Marcar como Perdida</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <Label htmlFor="reason">Motivo da perda (obrigatório)</Label>
-                <Textarea
-                  id="reason"
-                  placeholder="Ex: Preço muito alto, optou pela concorrência..."
-                  value={lossReason}
-                  onChange={(e) => setLossReason(e.target.value)}
-                  className="min-h-20"
-                />
-                <div className="flex gap-2 justify-end">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setIsLossDialogOpen(false)}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button 
-                    variant="destructive"
-                    onClick={handleMarkAsLost}
-                    disabled={!lossReason.trim()}
-                  >
-                    Marcar como Perdida
-                  </Button>
+        {opportunity.status === 'em-andamento' && (
+          <div className="flex gap-1">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="h-6 w-6 p-0 text-muted-foreground hover:text-green-600"
+              onClick={() => onMarkAsWon(opportunity.id)}
+              title="Marcar como Ganha"
+            >
+              <CheckCircle className="h-4 w-4" />
+            </Button>
+            <Dialog open={isLossDialogOpen} onOpenChange={setIsLossDialogOpen}>
+              <DialogTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                  title="Marcar como Perdida"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Marcar como Perdida</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <Label htmlFor="reason">Motivo da perda (obrigatório)</Label>
+                  <Textarea
+                    id="reason"
+                    placeholder="Ex: Preço muito alto, optou pela concorrência..."
+                    value={lossReason}
+                    onChange={(e) => setLossReason(e.target.value)}
+                    className="min-h-20"
+                  />
+                  <div className="flex gap-2 justify-end">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setIsLossDialogOpen(false)}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button 
+                      variant="destructive"
+                      onClick={handleMarkAsLost}
+                      disabled={!lossReason.trim()}
+                    >
+                      Marcar como Perdida
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogContent>
+            </Dialog>
+          </div>
         )}
       </div>
 

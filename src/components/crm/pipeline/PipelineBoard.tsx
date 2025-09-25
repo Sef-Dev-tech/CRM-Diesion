@@ -11,6 +11,7 @@ export interface Opportunity {
   company: string;
   value: number;
   stage: 'lead' | 'qualified' | 'proposal' | 'negotiation' | 'closed';
+  status: 'em-andamento' | 'perdida' | 'ganha';
   isLost: boolean;
   createdAt: string;
   responsible: string;
@@ -34,6 +35,7 @@ const mockOpportunities: Opportunity[] = [
     company: 'Empresa ABC Ltda',
     value: 15000,
     stage: 'lead',
+    status: 'em-andamento',
     isLost: false,
     createdAt: '2024-01-15',
     responsible: 'Ana Costa',
@@ -45,6 +47,7 @@ const mockOpportunities: Opportunity[] = [
     company: 'Tech Solutions',
     value: 25000,
     stage: 'qualified',
+    status: 'em-andamento',
     isLost: false,
     createdAt: '2024-01-10',
     responsible: 'Carlos Lima',
@@ -56,6 +59,7 @@ const mockOpportunities: Opportunity[] = [
     company: 'Inovações XYZ',
     value: 40000,
     stage: 'proposal',
+    status: 'em-andamento',
     isLost: false,
     createdAt: '2024-01-05',
     responsible: 'Ana Costa',
@@ -67,11 +71,24 @@ const mockOpportunities: Opportunity[] = [
     company: 'Digital Corp',
     value: 8000,
     stage: 'proposal',
+    status: 'perdida',
     isLost: true,
     createdAt: '2024-01-08',
     responsible: 'Carlos Lima',
     timeInStage: 10,
     lossReason: 'Preço muito alto',
+  },
+  {
+    id: '5',
+    contactName: 'Sandra Almeida',
+    company: 'StartUp Tech',
+    value: 30000,
+    stage: 'closed',
+    status: 'ganha',
+    isLost: false,
+    createdAt: '2024-01-01',
+    responsible: 'Ana Costa',
+    timeInStage: 15,
   },
 ];
 
@@ -118,10 +135,11 @@ const mockContacts: Contact[] = [
 export function PipelineBoard() {
   const [opportunities, setOpportunities] = useState<Opportunity[]>(mockOpportunities);
 
-  const addOpportunity = (opportunityData: Omit<Opportunity, 'id' | 'isLost' | 'createdAt' | 'timeInStage'>) => {
+  const addOpportunity = (opportunityData: Omit<Opportunity, 'id' | 'status' | 'isLost' | 'createdAt' | 'timeInStage'>) => {
     const newOpportunity: Opportunity = {
       ...opportunityData,
       id: Date.now().toString(),
+      status: 'em-andamento',
       isLost: false,
       createdAt: new Date().toISOString().split('T')[0],
       timeInStage: 0,
@@ -143,7 +161,17 @@ export function PipelineBoard() {
     setOpportunities(prev => 
       prev.map(opp => 
         opp.id === opportunityId 
-          ? { ...opp, isLost: true, lossReason: reason }
+          ? { ...opp, isLost: true, status: 'perdida', lossReason: reason }
+          : opp
+      )
+    );
+  };
+
+  const markAsWon = (opportunityId: string) => {
+    setOpportunities(prev => 
+      prev.map(opp => 
+        opp.id === opportunityId 
+          ? { ...opp, status: 'ganha', stage: 'closed' }
           : opp
       )
     );
@@ -183,6 +211,7 @@ export function PipelineBoard() {
               totalValue={getTotalValue(stage.id)}
               onMoveOpportunity={moveOpportunity}
               onMarkAsLost={markAsLost}
+              onMarkAsWon={markAsWon}
             />
           ))}
         </div>
