@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { PipelineColumn } from "./PipelineColumn";
 import { OpportunityCard } from "./OpportunityCard";
+import { AddOpportunityDialog } from "./AddOpportunityDialog";
 
 export interface Opportunity {
   id: string;
@@ -76,6 +77,17 @@ const mockOpportunities: Opportunity[] = [
 export function PipelineBoard() {
   const [opportunities, setOpportunities] = useState<Opportunity[]>(mockOpportunities);
 
+  const addOpportunity = (opportunityData: Omit<Opportunity, 'id' | 'isLost' | 'createdAt' | 'timeInStage'>) => {
+    const newOpportunity: Opportunity = {
+      ...opportunityData,
+      id: Date.now().toString(),
+      isLost: false,
+      createdAt: new Date().toISOString().split('T')[0],
+      timeInStage: 0,
+    };
+    setOpportunities(prev => [...prev, newOpportunity]);
+  };
+
   const moveOpportunity = (opportunityId: string, newStage: Opportunity['stage']) => {
     setOpportunities(prev => 
       prev.map(opp => 
@@ -110,8 +122,13 @@ export function PipelineBoard() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b bg-card px-6 py-4">
-        <h1 className="text-2xl font-semibold text-foreground">Pipeline de Vendas</h1>
-        <p className="text-muted-foreground">Gerencie suas oportunidades no funil de vendas</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold text-foreground">Pipeline de Vendas</h1>
+            <p className="text-muted-foreground">Gerencie suas oportunidades no funil de vendas</p>
+          </div>
+          <AddOpportunityDialog onAddOpportunity={addOpportunity} />
+        </div>
       </div>
 
       {/* Pipeline Board */}
