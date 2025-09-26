@@ -5,6 +5,7 @@ import { SalesTeamStats } from "@/components/crm/dashboard/SalesTeamStats";
 import { SalesRanking } from "@/components/crm/dashboard/SalesRanking";
 import { SalesCharts } from "@/components/crm/dashboard/SalesCharts";
 import { SalesLeaderboard } from "@/components/crm/dashboard/SalesLeaderboard";
+import { SalesGoals } from "@/components/crm/dashboard/SalesGoals";
 import { AccountsPage } from "@/components/crm/accounts/AccountsPage";
 import { ContactsPage } from "@/components/crm/contacts/ContactsPage";
 import { PropertiesPage } from "@/components/crm/properties/PropertiesPage";
@@ -72,6 +73,10 @@ const Index = () => {
               
               <div>
                 <SalesCharts />
+              </div>
+              
+              <div>
+                <SalesGoals />
               </div>
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
