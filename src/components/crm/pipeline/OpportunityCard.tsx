@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -6,9 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Opportunity, OpportunityInteraction } from "./PipelineBoard";
-import { AddInteractionDialog } from "./AddInteractionDialog";
-import { InteractionHistory } from "./InteractionHistory";
-import { Building, User, Calendar, Clock, X, CheckCircle, MessageSquare } from "lucide-react";
+import { Building, User, Calendar, Clock, X, CheckCircle, Eye } from "lucide-react";
 
 interface OpportunityCardProps {
   opportunity: Opportunity;
@@ -92,38 +91,17 @@ export function OpportunityCard({ opportunity, onMarkAsLost, onMarkAsWon, onAddI
         </div>
         
         <div className="flex gap-1">
-          {/* História/Interações */}
-          <Dialog open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen}>
-            <DialogTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                className="h-6 w-6 p-0 text-muted-foreground hover:text-blue-600"
-                title="Ver histórico e adicionar interações"
-              >
-                <MessageSquare className="h-4 w-4" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Histórico - {opportunity.company}</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h4 className="text-sm font-medium">Interações</h4>
-                  <AddInteractionDialog 
-                    onAddInteraction={(interaction) => {
-                      onAddInteraction(opportunity.id, interaction);
-                    }}
-                  />
-                </div>
-                <InteractionHistory 
-                  interactions={opportunity.interactions}
-                  onMarkAsCompleted={(interactionId) => onMarkInteractionCompleted(opportunity.id, interactionId)}
-                />
-              </div>
-            </DialogContent>
-          </Dialog>
+          {/* Ver Detalhes */}
+          <Link to={`/opportunity/${opportunity.id}`}>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="h-6 w-6 p-0 text-muted-foreground hover:text-blue-600"
+              title="Ver detalhes da oportunidade"
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+          </Link>
 
           {opportunity.status === 'em-andamento' && (
             <>
