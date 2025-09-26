@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AddPropertyDialog } from "./AddPropertyDialog";
 import { Property, propertyTypeLabels } from "./types";
-import { Home, MapPin, Bed, Bath, Car, Grid3X3, List, Building2 } from "lucide-react";
+import { Home, MapPin, Bed, Bath, Car, Grid3X3, List, Building2, Eye } from "lucide-react";
 
 // Import property images
 import property1Exterior from "@/assets/property-1-exterior.jpg";
@@ -13,7 +13,7 @@ import property1Living from "@/assets/property-1-living.jpg";
 import property1Kitchen from "@/assets/property-1-kitchen.jpg";
 import property2Exterior from "@/assets/property-2-exterior.jpg";
 import property2Living from "@/assets/property-2-living.jpg";
-
+import { ImageGallery } from "./ImageGallery";
 // Mock data para imóveis
 const mockProperties: Property[] = [
   {
@@ -97,6 +97,13 @@ const mockProperties: Property[] = [
 export function PropertiesPage() {
   const [properties] = useState<Property[]>(mockProperties);
   const [viewMode, setViewMode] = useState<"cards" | "list">("cards");
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
+
+  const openGallery = (photos: string[] = []) => {
+    setGalleryPhotos(photos);
+    setGalleryOpen(true);
+  };
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -189,6 +196,13 @@ export function PropertiesPage() {
             <span className="font-medium">Obs:</span> {property.observations}
           </div>
         )}
+        {property.photos && property.photos.length > 0 && (
+          <div className="pt-2">
+            <Button variant="outline" size="sm" onClick={() => openGallery(property.photos!)}>
+              <Eye className="h-4 w-4 mr-2" /> Visualizar fotos
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -278,6 +292,8 @@ export function PropertiesPage() {
           </CardContent>
         </Card>
       )}
+
+      <ImageGallery open={galleryOpen} onOpenChange={setGalleryOpen} photos={galleryPhotos} />
 
       {properties.length === 0 && (
         <div className="text-center py-12">
