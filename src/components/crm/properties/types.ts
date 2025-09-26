@@ -21,6 +21,7 @@ export interface Property {
     floor?: number;
   };
   observations?: string;
+  photos?: string[];
   createdAt: Date;
   updatedAt: Date;
 }

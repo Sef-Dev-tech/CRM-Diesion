@@ -7,6 +7,13 @@ import { AddPropertyDialog } from "./AddPropertyDialog";
 import { Property, propertyTypeLabels } from "./types";
 import { Home, MapPin, Bed, Bath, Car, Grid3X3, List, Building2 } from "lucide-react";
 
+// Import property images
+import property1Exterior from "@/assets/property-1-exterior.jpg";
+import property1Living from "@/assets/property-1-living.jpg";
+import property1Kitchen from "@/assets/property-1-kitchen.jpg";
+import property2Exterior from "@/assets/property-2-exterior.jpg";
+import property2Living from "@/assets/property-2-living.jpg";
+
 // Mock data para imóveis
 const mockProperties: Property[] = [
   {
@@ -32,6 +39,7 @@ const mockProperties: Property[] = [
       floor: 10
     },
     observations: "Apartamento reformado com vista para o parque",
+    photos: [property1Exterior, property1Living, property1Kitchen],
     createdAt: new Date("2024-01-15"),
     updatedAt: new Date("2024-01-15")
   },
@@ -55,6 +63,7 @@ const mockProperties: Property[] = [
       parkingSpaces: 2
     },
     observations: "Casa térrea com quintal amplo",
+    photos: [property2Exterior, property2Living],
     createdAt: new Date("2024-01-20"),
     updatedAt: new Date("2024-01-20")
   },
