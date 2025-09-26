@@ -8,7 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus } from "lucide-react";
+import { Plus, X, Upload } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { PropertyType, propertyTypeLabels } from "./types";
 
@@ -32,6 +32,7 @@ const propertySchema = z.object({
   parkingSpaces: z.number().min(0, "Número de vagas não pode ser negativo"),
   floor: z.number().min(0, "Andar não pode ser negativo").optional(),
   observations: z.string().max(500, "Observações devem ter no máximo 500 caracteres").optional(),
+  photos: z.array(z.string()).optional(),
 });
 
 type PropertyFormData = z.infer<typeof propertySchema>;
@@ -42,6 +43,7 @@ interface AddPropertyDialogProps {
 
 export function AddPropertyDialog({ onPropertyAdded }: AddPropertyDialogProps) {
   const [open, setOpen] = useState(false);
+  const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
   
   const form = useForm<PropertyFormData>({
     resolver: zodResolver(propertySchema),
@@ -63,14 +65,42 @@ export function AddPropertyDialog({ onPropertyAdded }: AddPropertyDialogProps) {
       parkingSpaces: 0,
       floor: undefined,
       observations: "",
+      photos: [],
     },
   });
 
   const watchType = form.watch("type");
 
+  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files) {
+      const newPhotos: string[] = [];
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (e.target?.result) {
+            newPhotos.push(e.target.result as string);
+            if (newPhotos.length === files.length) {
+              setSelectedPhotos(prev => [...prev, ...newPhotos]);
+              form.setValue("photos", [...selectedPhotos, ...newPhotos]);
+            }
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const removePhoto = (index: number) => {
+    const updatedPhotos = selectedPhotos.filter((_, i) => i !== index);
+    setSelectedPhotos(updatedPhotos);
+    form.setValue("photos", updatedPhotos);
+  };
+
   const onSubmit = (data: PropertyFormData) => {
     // Simulação de cadastro
-    console.log("Property data:", data);
+    const propertyWithPhotos = { ...data, photos: selectedPhotos };
+    console.log("Property data:", propertyWithPhotos);
     
     toast({
       title: "Imóvel cadastrado!",
@@ -79,6 +109,7 @@ export function AddPropertyDialog({ onPropertyAdded }: AddPropertyDialogProps) {
     
     setOpen(false);
     form.reset();
+    setSelectedPhotos([]);
     onPropertyAdded();
   };
 
@@ -383,6 +414,55 @@ export function AddPropertyDialog({ onPropertyAdded }: AddPropertyDialogProps) {
                       </FormItem>
                     )}
                   />
+                )}
+              </div>
+            </div>
+
+            {/* Fotos */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Fotos do Imóvel</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-center w-full">
+                  <label htmlFor="photo-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <Upload className="w-8 h-8 mb-4 text-gray-500" />
+                      <p className="mb-2 text-sm text-gray-500">
+                        <span className="font-semibold">Clique para enviar</span> ou arraste as fotos
+                      </p>
+                      <p className="text-xs text-gray-500">PNG, JPG ou JPEG (MAX. 10MB cada)</p>
+                    </div>
+                    <Input
+                      id="photo-upload"
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      multiple
+                      onChange={handlePhotoUpload}
+                    />
+                  </label>
+                </div>
+                
+                {selectedPhotos.length > 0 && (
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {selectedPhotos.map((photo, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={photo}
+                          alt={`Foto ${index + 1}`}
+                          className="w-full h-24 object-cover rounded-lg"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => removePhoto(index)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
             </div>
