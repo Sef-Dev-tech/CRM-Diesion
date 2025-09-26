@@ -27,7 +27,7 @@ type OpportunityFormData = {
 };
 
 interface AddOpportunityDialogProps {
-  onAddOpportunity: (opportunity: Omit<Opportunity, 'id' | 'status' | 'isLost' | 'createdAt' | 'timeInStage'>) => void;
+  onAddOpportunity: (opportunity: Omit<Opportunity, 'id' | 'status' | 'isLost' | 'createdAt' | 'timeInStage' | 'interactions'>) => void;
 }
 
 export function AddOpportunityDialog({ onAddOpportunity }: AddOpportunityDialogProps) {

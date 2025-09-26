@@ -5,17 +5,22 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Opportunity } from "./PipelineBoard";
-import { Building, User, Calendar, Clock, X, CheckCircle } from "lucide-react";
+import { Opportunity, OpportunityInteraction } from "./PipelineBoard";
+import { AddInteractionDialog } from "./AddInteractionDialog";
+import { InteractionHistory } from "./InteractionHistory";
+import { Building, User, Calendar, Clock, X, CheckCircle, MessageSquare } from "lucide-react";
 
 interface OpportunityCardProps {
   opportunity: Opportunity;
   onMarkAsLost: (opportunityId: string, reason: string) => void;
   onMarkAsWon: (opportunityId: string) => void;
+  onAddInteraction: (opportunityId: string, interaction: Omit<OpportunityInteraction, 'id' | 'date' | 'completed'>) => void;
+  onMarkInteractionCompleted: (opportunityId: string, interactionId: string) => void;
 }
 
-export function OpportunityCard({ opportunity, onMarkAsLost, onMarkAsWon }: OpportunityCardProps) {
+export function OpportunityCard({ opportunity, onMarkAsLost, onMarkAsWon, onAddInteraction, onMarkInteractionCompleted }: OpportunityCardProps) {
   const [isLossDialogOpen, setIsLossDialogOpen] = useState(false);
+  const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const [lossReason, setLossReason] = useState('');
 
   const formatCurrency = (value: number) => {
@@ -86,61 +91,96 @@ export function OpportunityCard({ opportunity, onMarkAsLost, onMarkAsWon }: Oppo
           {formatCurrency(opportunity.value)}
         </div>
         
-        {opportunity.status === 'em-andamento' && (
-          <div className="flex gap-1">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              className="h-6 w-6 p-0 text-muted-foreground hover:text-green-600"
-              onClick={() => onMarkAsWon(opportunity.id)}
-              title="Marcar como Ganha"
-            >
-              <CheckCircle className="h-4 w-4" />
-            </Button>
-            <Dialog open={isLossDialogOpen} onOpenChange={setIsLossDialogOpen}>
-              <DialogTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
-                  title="Marcar como Perdida"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Marcar como Perdida</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <Label htmlFor="reason">Motivo da perda (obrigatório)</Label>
-                  <Textarea
-                    id="reason"
-                    placeholder="Ex: Preço muito alto, optou pela concorrência..."
-                    value={lossReason}
-                    onChange={(e) => setLossReason(e.target.value)}
-                    className="min-h-20"
+        <div className="flex gap-1">
+          {/* História/Interações */}
+          <Dialog open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen}>
+            <DialogTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="h-6 w-6 p-0 text-muted-foreground hover:text-blue-600"
+                title="Ver histórico e adicionar interações"
+              >
+                <MessageSquare className="h-4 w-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Histórico - {opportunity.company}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h4 className="text-sm font-medium">Interações</h4>
+                  <AddInteractionDialog 
+                    onAddInteraction={(interaction) => {
+                      onAddInteraction(opportunity.id, interaction);
+                    }}
                   />
-                  <div className="flex gap-2 justify-end">
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setIsLossDialogOpen(false)}
-                    >
-                      Cancelar
-                    </Button>
-                    <Button 
-                      variant="destructive"
-                      onClick={handleMarkAsLost}
-                      disabled={!lossReason.trim()}
-                    >
-                      Marcar como Perdida
-                    </Button>
-                  </div>
                 </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-        )}
+                <InteractionHistory 
+                  interactions={opportunity.interactions}
+                  onMarkAsCompleted={(interactionId) => onMarkInteractionCompleted(opportunity.id, interactionId)}
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {opportunity.status === 'em-andamento' && (
+            <>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="h-6 w-6 p-0 text-muted-foreground hover:text-green-600"
+                onClick={() => onMarkAsWon(opportunity.id)}
+                title="Marcar como Ganha"
+              >
+                <CheckCircle className="h-4 w-4" />
+              </Button>
+              <Dialog open={isLossDialogOpen} onOpenChange={setIsLossDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                    title="Marcar como Perdida"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Marcar como Perdida</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <Label htmlFor="reason">Motivo da perda (obrigatório)</Label>
+                    <Textarea
+                      id="reason"
+                      placeholder="Ex: Preço muito alto, optou pela concorrência..."
+                      value={lossReason}
+                      onChange={(e) => setLossReason(e.target.value)}
+                      className="min-h-20"
+                    />
+                    <div className="flex gap-2 justify-end">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setIsLossDialogOpen(false)}
+                      >
+                        Cancelar
+                      </Button>
+                      <Button 
+                        variant="destructive"
+                        onClick={handleMarkAsLost}
+                        disabled={!lossReason.trim()}
+                      >
+                        Marcar como Perdida
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Company and Contact */}

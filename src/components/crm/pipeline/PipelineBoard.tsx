@@ -5,6 +5,15 @@ import { OpportunityCard } from "./OpportunityCard";
 import { AddOpportunityDialog } from "./AddOpportunityDialog";
 import { Account, Contact } from "../accounts/types";
 
+export interface OpportunityInteraction {
+  id: string;
+  type: 'call' | 'email' | 'meeting' | 'note' | 'reminder';
+  description: string;
+  date: string;
+  scheduledFor?: string; // Para agendamentos futuros
+  completed: boolean;
+}
+
 export interface Opportunity {
   id: string;
   contactName: string;
@@ -17,6 +26,7 @@ export interface Opportunity {
   responsible: string;
   timeInStage: number; // days
   lossReason?: string;
+  interactions: OpportunityInteraction[];
 }
 
 const PIPELINE_STAGES = [
@@ -40,6 +50,23 @@ const mockOpportunities: Opportunity[] = [
     createdAt: '2024-01-15',
     responsible: 'Ana Costa',
     timeInStage: 3,
+    interactions: [
+      {
+        id: '1',
+        type: 'call',
+        description: 'Ligação inicial para apresentar a empresa e entender necessidades.',
+        date: '2024-01-15T10:30:00Z',
+        completed: true,
+      },
+      {
+        id: '2',
+        type: 'reminder',
+        description: 'Ligar novamente para cliente amanhã às 14h para apresentar proposta.',
+        date: '2024-01-16T10:00:00Z',
+        scheduledFor: '2024-01-17T14:00:00Z',
+        completed: false,
+      }
+    ],
   },
   {
     id: '2',
@@ -52,6 +79,15 @@ const mockOpportunities: Opportunity[] = [
     createdAt: '2024-01-10',
     responsible: 'Carlos Lima',
     timeInStage: 7,
+    interactions: [
+      {
+        id: '3',
+        type: 'meeting',
+        description: 'Reunião para apresentação da solução e demonstração do produto.',
+        date: '2024-01-12T15:00:00Z',
+        completed: true,
+      }
+    ],
   },
   {
     id: '3',
@@ -64,6 +100,7 @@ const mockOpportunities: Opportunity[] = [
     createdAt: '2024-01-05',
     responsible: 'Ana Costa',
     timeInStage: 12,
+    interactions: [],
   },
   {
     id: '4',
@@ -77,6 +114,15 @@ const mockOpportunities: Opportunity[] = [
     responsible: 'Carlos Lima',
     timeInStage: 10,
     lossReason: 'Preço muito alto',
+    interactions: [
+      {
+        id: '4',
+        type: 'note',
+        description: 'Cliente informou que o orçamento estava acima do esperado.',
+        date: '2024-01-10T11:00:00Z',
+        completed: true,
+      }
+    ],
   },
   {
     id: '5',
@@ -89,6 +135,15 @@ const mockOpportunities: Opportunity[] = [
     createdAt: '2024-01-01',
     responsible: 'Ana Costa',
     timeInStage: 15,
+    interactions: [
+      {
+        id: '5',
+        type: 'email',
+        description: 'Envio do contrato assinado e confirmação do início do projeto.',
+        date: '2024-01-16T09:00:00Z',
+        completed: true,
+      }
+    ],
   },
 ];
 
@@ -135,7 +190,7 @@ const mockContacts: Contact[] = [
 export function PipelineBoard() {
   const [opportunities, setOpportunities] = useState<Opportunity[]>(mockOpportunities);
 
-  const addOpportunity = (opportunityData: Omit<Opportunity, 'id' | 'status' | 'isLost' | 'createdAt' | 'timeInStage'>) => {
+  const addOpportunity = (opportunityData: Omit<Opportunity, 'id' | 'status' | 'isLost' | 'createdAt' | 'timeInStage' | 'interactions'>) => {
     const newOpportunity: Opportunity = {
       ...opportunityData,
       id: Date.now().toString(),
@@ -143,6 +198,7 @@ export function PipelineBoard() {
       isLost: false,
       createdAt: new Date().toISOString().split('T')[0],
       timeInStage: 0,
+      interactions: [],
     };
     setOpportunities(prev => [...prev, newOpportunity]);
   };
@@ -175,6 +231,36 @@ export function PipelineBoard() {
           : opp
       )
     );
+  };
+
+  const addInteraction = (opportunityId: string, interactionData: Omit<OpportunityInteraction, 'id' | 'date' | 'completed'>) => {
+    const newInteraction: OpportunityInteraction = {
+      ...interactionData,
+      id: Date.now().toString(),
+      date: new Date().toISOString(),
+      completed: !interactionData.scheduledFor, // Se não tem agendamento, já está completo
+    };
+
+    setOpportunities(prev => prev.map(opp => 
+      opp.id === opportunityId 
+        ? { ...opp, interactions: [...opp.interactions, newInteraction] }
+        : opp
+    ));
+  };
+
+  const markInteractionCompleted = (opportunityId: string, interactionId: string) => {
+    setOpportunities(prev => prev.map(opp => 
+      opp.id === opportunityId 
+        ? {
+            ...opp, 
+            interactions: opp.interactions.map(interaction =>
+              interaction.id === interactionId 
+                ? { ...interaction, completed: true }
+                : interaction
+            )
+          }
+        : opp
+    ));
   };
 
   const getOpportunitiesByStage = (stage: string) => {
@@ -212,6 +298,8 @@ export function PipelineBoard() {
               onMoveOpportunity={moveOpportunity}
               onMarkAsLost={markAsLost}
               onMarkAsWon={markAsWon}
+              onAddInteraction={addInteraction}
+              onMarkInteractionCompleted={markInteractionCompleted}
             />
           ))}
         </div>

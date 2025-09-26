@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { OpportunityCard } from "./OpportunityCard";
-import { Opportunity } from "./PipelineBoard";
+import { Opportunity, OpportunityInteraction } from "./PipelineBoard";
 
 interface PipelineColumnProps {
   stage: {
@@ -14,6 +14,8 @@ interface PipelineColumnProps {
   onMoveOpportunity: (opportunityId: string, newStage: Opportunity['stage']) => void;
   onMarkAsLost: (opportunityId: string, reason: string) => void;
   onMarkAsWon: (opportunityId: string) => void;
+  onAddInteraction: (opportunityId: string, interaction: Omit<OpportunityInteraction, 'id' | 'date' | 'completed'>) => void;
+  onMarkInteractionCompleted: (opportunityId: string, interactionId: string) => void;
 }
 
 export function PipelineColumn({ 
@@ -21,8 +23,10 @@ export function PipelineColumn({
   opportunities, 
   totalValue, 
   onMoveOpportunity, 
-  onMarkAsLost,
-  onMarkAsWon 
+  onMarkAsLost, 
+  onMarkAsWon,
+  onAddInteraction,
+  onMarkInteractionCompleted
 }: PipelineColumnProps) {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -80,6 +84,8 @@ export function PipelineColumn({
               opportunity={opportunity}
               onMarkAsLost={onMarkAsLost}
               onMarkAsWon={onMarkAsWon}
+              onAddInteraction={onAddInteraction}
+              onMarkInteractionCompleted={onMarkInteractionCompleted}
             />
           ))}
 
@@ -90,6 +96,8 @@ export function PipelineColumn({
               opportunity={opportunity}
               onMarkAsLost={onMarkAsLost}
               onMarkAsWon={onMarkAsWon}
+              onAddInteraction={onAddInteraction}
+              onMarkInteractionCompleted={onMarkInteractionCompleted}
             />
           ))}
 
