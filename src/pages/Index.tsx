@@ -7,9 +7,10 @@ import { SalesCharts } from "@/components/crm/dashboard/SalesCharts";
 import { SalesLeaderboard } from "@/components/crm/dashboard/SalesLeaderboard";
 import { AccountsPage } from "@/components/crm/accounts/AccountsPage";
 import { ContactsPage } from "@/components/crm/contacts/ContactsPage";
+import { PropertiesPage } from "@/components/crm/properties/PropertiesPage";
 import { UsersPage } from "@/components/crm/users/UsersPage";
 import { useAuth } from "@/hooks/useAuth";
-import { BarChart3, Kanban, Users, Building, UserCheck } from "lucide-react";
+import { BarChart3, Kanban, Users, Building, UserCheck, Home } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const Index = () => {
@@ -33,7 +34,7 @@ const Index = () => {
       {/* Main Content */}
       <main className="p-6">
         <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className={`grid w-full ${isAdmin ? 'max-w-2xl grid-cols-5' : 'max-w-md grid-cols-4'} bg-muted`}>
+          <TabsList className={`grid w-full ${isAdmin ? 'max-w-3xl grid-cols-6' : 'max-w-2xl grid-cols-5'} bg-muted`}>
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
               Dashboard
@@ -41,6 +42,10 @@ const Index = () => {
             <TabsTrigger value="pipeline" className="flex items-center gap-2">
               <Kanban className="h-4 w-4" />
               Pipeline
+            </TabsTrigger>
+            <TabsTrigger value="properties" className="flex items-center gap-2">
+              <Home className="h-4 w-4" />
+              Imóveis
             </TabsTrigger>
             <TabsTrigger value="accounts" className="flex items-center gap-2">
               <Building className="h-4 w-4" />
@@ -85,6 +90,10 @@ const Index = () => {
 
             <TabsContent value="pipeline" className="space-y-6">
               <PipelineBoard />
+            </TabsContent>
+
+            <TabsContent value="properties" className="space-y-6">
+              <PropertiesPage />
             </TabsContent>
 
             <TabsContent value="accounts" className="space-y-6">
