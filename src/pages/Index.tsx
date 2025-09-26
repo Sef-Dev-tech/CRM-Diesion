@@ -7,6 +7,7 @@ import { ContactsPage } from "@/components/crm/contacts/ContactsPage";
 import { UsersPage } from "@/components/crm/users/UsersPage";
 import { useAuth } from "@/hooks/useAuth";
 import { BarChart3, Kanban, Users, Building, UserCheck } from "lucide-react";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const Index = () => {
   const { isAdmin } = useAuth();
@@ -22,6 +23,7 @@ const Index = () => {
             </h1>
             <p className="text-muted-foreground">Sistema completo de gestão de vendas</p>
           </div>
+          <ThemeToggle />
         </div>
       </header>
 
