@@ -2,6 +2,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PipelineBoard } from "@/components/crm/pipeline/PipelineBoard";
 import { DashboardStats } from "@/components/crm/dashboard/DashboardStats";
 import { SalesTeamStats } from "@/components/crm/dashboard/SalesTeamStats";
+import { SalesRanking } from "@/components/crm/dashboard/SalesRanking";
+import { SalesCharts } from "@/components/crm/dashboard/SalesCharts";
+import { SalesLeaderboard } from "@/components/crm/dashboard/SalesLeaderboard";
 import { AccountsPage } from "@/components/crm/accounts/AccountsPage";
 import { ContactsPage } from "@/components/crm/contacts/ContactsPage";
 import { UsersPage } from "@/components/crm/users/UsersPage";
@@ -61,8 +64,22 @@ const Index = () => {
                 <h2 className="text-2xl font-semibold mb-4">Dashboard</h2>
                 <DashboardStats />
               </div>
+              
               <div>
-                <SalesTeamStats />
+                <SalesCharts />
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                  <SalesRanking />
+                </div>
+                <div>
+                  <SalesTeamStats />
+                </div>
+              </div>
+              
+              <div>
+                <SalesLeaderboard />
               </div>
             </TabsContent>
 
