@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, Navigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AddInteractionDialog } from "@/components/crm/pipeline/AddInteractionDialog";
 import { InteractionHistory } from "@/components/crm/pipeline/InteractionHistory";
 import { StageHistoryTimeline } from "@/components/crm/pipeline/StageHistoryTimeline";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   ArrowLeft, 
   Building, 
@@ -96,7 +97,14 @@ const statusLabels = {
 
 export function OpportunityDetail() {
   const { id } = useParams();
+  const { currentUser, isAdmin } = useAuth();
   const [opportunity, setOpportunity] = useState(mockOpportunity);
+
+  // Verificar se o usuário tem permissão para ver esta oportunidade
+  // Vendedores só podem ver suas próprias oportunidades
+  if (!isAdmin && opportunity.responsible !== currentUser?.name) {
+    return <Navigate to="/" replace />;
+  }
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {

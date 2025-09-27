@@ -4,6 +4,7 @@ import { PipelineColumn } from "./PipelineColumn";
 import { OpportunityCard } from "./OpportunityCard";
 import { AddOpportunityDialog } from "./AddOpportunityDialog";
 import { Account, Contact } from "../accounts/types";
+import { useAuth } from "@/hooks/useAuth";
 
 export interface OpportunityInteraction {
   id: string;
@@ -277,6 +278,62 @@ const mockOpportunities: Opportunity[] = [
       }
     ],
   },
+  {
+    id: '6',
+    contactName: 'Roberto Mendes',
+    company: 'Sistemas Avançados Ltda',
+    value: 55000,
+    stage: 'negotiation',
+    status: 'em-andamento',
+    isLost: false,
+    createdAt: '2024-01-12',
+    responsible: 'Admin Sistema',
+    timeInStage: 5,
+    stageHistory: [
+      {
+        id: '15',
+        stage: 'lead',
+        enteredAt: '2024-01-12T08:00:00Z',
+        leftAt: '2024-01-13T16:00:00Z',
+        daysInStage: 1,
+        movedBy: 'Admin Sistema',
+      },
+      {
+        id: '16',
+        stage: 'qualified',
+        enteredAt: '2024-01-13T16:00:00Z',
+        leftAt: '2024-01-15T10:00:00Z',
+        daysInStage: 2,
+        movedBy: 'Admin Sistema',
+        previousStage: 'lead',
+      },
+      {
+        id: '17',
+        stage: 'proposal',
+        enteredAt: '2024-01-15T10:00:00Z',
+        leftAt: '2024-01-17T14:00:00Z',
+        daysInStage: 2,
+        movedBy: 'Admin Sistema',
+        previousStage: 'qualified',
+      },
+      {
+        id: '18',
+        stage: 'negotiation',
+        enteredAt: '2024-01-17T14:00:00Z',
+        movedBy: 'Admin Sistema',
+        previousStage: 'proposal',
+      }
+    ],
+    interactions: [
+      {
+        id: '6',
+        type: 'meeting',
+        description: 'Reunião de negociação final com decisores da empresa.',
+        date: '2024-01-17T15:00:00Z',
+        completed: true,
+      }
+    ],
+  },
 ];
 
 const mockAccounts: Account[] = [
@@ -320,7 +377,13 @@ const mockContacts: Contact[] = [
 ];
 
 export function PipelineBoard() {
+  const { currentUser, isAdmin } = useAuth();
   const [opportunities, setOpportunities] = useState<Opportunity[]>(mockOpportunities);
+
+  // Filtrar oportunidades baseado no papel do usuário
+  const filteredOpportunities = isAdmin 
+    ? opportunities 
+    : opportunities.filter(opp => opp.responsible === currentUser?.name);
 
   const addOpportunity = (opportunityData: Omit<Opportunity, 'id' | 'status' | 'isLost' | 'createdAt' | 'timeInStage' | 'interactions' | 'stageHistory'>) => {
     const now = new Date().toISOString();
@@ -437,11 +500,11 @@ export function PipelineBoard() {
   };
 
   const getOpportunitiesByStage = (stage: string) => {
-    return opportunities.filter(opp => opp.stage === stage);
+    return filteredOpportunities.filter(opp => opp.stage === stage);
   };
 
   const getTotalValue = (stage: string) => {
-    return opportunities
+    return filteredOpportunities
       .filter(opp => opp.stage === stage && !opp.isLost)
       .reduce((sum, opp) => sum + opp.value, 0);
   };
