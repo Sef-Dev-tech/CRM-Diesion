@@ -14,6 +14,16 @@ export interface OpportunityInteraction {
   completed: boolean;
 }
 
+export interface StageHistory {
+  id: string;
+  stage: 'lead' | 'qualified' | 'proposal' | 'negotiation' | 'closed';
+  enteredAt: string;
+  leftAt?: string;
+  daysInStage?: number;
+  movedBy: string;
+  previousStage?: 'lead' | 'qualified' | 'proposal' | 'negotiation' | 'closed';
+}
+
 export interface Opportunity {
   id: string;
   contactName: string;
@@ -27,6 +37,7 @@ export interface Opportunity {
   timeInStage: number; // days
   lossReason?: string;
   interactions: OpportunityInteraction[];
+  stageHistory: StageHistory[];
 }
 
 const PIPELINE_STAGES = [
@@ -50,6 +61,14 @@ const mockOpportunities: Opportunity[] = [
     createdAt: '2024-01-15',
     responsible: 'Ana Costa',
     timeInStage: 3,
+    stageHistory: [
+      {
+        id: '1',
+        stage: 'lead',
+        enteredAt: '2024-01-15T09:00:00Z',
+        movedBy: 'Ana Costa',
+      }
+    ],
     interactions: [
       {
         id: '1',
@@ -79,6 +98,23 @@ const mockOpportunities: Opportunity[] = [
     createdAt: '2024-01-10',
     responsible: 'Carlos Lima',
     timeInStage: 7,
+    stageHistory: [
+      {
+        id: '2',
+        stage: 'lead',
+        enteredAt: '2024-01-10T10:00:00Z',
+        leftAt: '2024-01-12T14:00:00Z',
+        daysInStage: 2,
+        movedBy: 'Carlos Lima',
+      },
+      {
+        id: '3',
+        stage: 'qualified',
+        enteredAt: '2024-01-12T14:00:00Z',
+        movedBy: 'Carlos Lima',
+        previousStage: 'lead',
+      }
+    ],
     interactions: [
       {
         id: '3',
@@ -100,6 +136,32 @@ const mockOpportunities: Opportunity[] = [
     createdAt: '2024-01-05',
     responsible: 'Ana Costa',
     timeInStage: 12,
+    stageHistory: [
+      {
+        id: '4',
+        stage: 'lead',
+        enteredAt: '2024-01-05T11:00:00Z',
+        leftAt: '2024-01-07T16:00:00Z',
+        daysInStage: 2,
+        movedBy: 'Ana Costa',
+      },
+      {
+        id: '5',
+        stage: 'qualified',
+        enteredAt: '2024-01-07T16:00:00Z',
+        leftAt: '2024-01-09T10:00:00Z',
+        daysInStage: 2,
+        movedBy: 'Ana Costa',
+        previousStage: 'lead',
+      },
+      {
+        id: '6',
+        stage: 'proposal',
+        enteredAt: '2024-01-09T10:00:00Z',
+        movedBy: 'Ana Costa',
+        previousStage: 'qualified',
+      }
+    ],
     interactions: [],
   },
   {
@@ -114,6 +176,32 @@ const mockOpportunities: Opportunity[] = [
     responsible: 'Carlos Lima',
     timeInStage: 10,
     lossReason: 'Preço muito alto',
+    stageHistory: [
+      {
+        id: '7',
+        stage: 'lead',
+        enteredAt: '2024-01-08T13:00:00Z',
+        leftAt: '2024-01-09T15:00:00Z',
+        daysInStage: 1,
+        movedBy: 'Carlos Lima',
+      },
+      {
+        id: '8',
+        stage: 'qualified',
+        enteredAt: '2024-01-09T15:00:00Z',
+        leftAt: '2024-01-11T09:00:00Z',
+        daysInStage: 2,
+        movedBy: 'Carlos Lima',
+        previousStage: 'lead',
+      },
+      {
+        id: '9',
+        stage: 'proposal',
+        enteredAt: '2024-01-11T09:00:00Z',
+        movedBy: 'Carlos Lima',
+        previousStage: 'qualified',
+      }
+    ],
     interactions: [
       {
         id: '4',
@@ -135,6 +223,50 @@ const mockOpportunities: Opportunity[] = [
     createdAt: '2024-01-01',
     responsible: 'Ana Costa',
     timeInStage: 15,
+    stageHistory: [
+      {
+        id: '10',
+        stage: 'lead',
+        enteredAt: '2024-01-01T08:00:00Z',
+        leftAt: '2024-01-03T12:00:00Z',
+        daysInStage: 2,
+        movedBy: 'Ana Costa',
+      },
+      {
+        id: '11',
+        stage: 'qualified',
+        enteredAt: '2024-01-03T12:00:00Z',
+        leftAt: '2024-01-08T14:00:00Z',
+        daysInStage: 5,
+        movedBy: 'Ana Costa',
+        previousStage: 'lead',
+      },
+      {
+        id: '12',
+        stage: 'proposal',
+        enteredAt: '2024-01-08T14:00:00Z',
+        leftAt: '2024-01-12T10:00:00Z',
+        daysInStage: 4,
+        movedBy: 'Ana Costa',
+        previousStage: 'qualified',
+      },
+      {
+        id: '13',
+        stage: 'negotiation',
+        enteredAt: '2024-01-12T10:00:00Z',
+        leftAt: '2024-01-15T16:00:00Z',
+        daysInStage: 3,
+        movedBy: 'Ana Costa',
+        previousStage: 'proposal',
+      },
+      {
+        id: '14',
+        stage: 'closed',
+        enteredAt: '2024-01-15T16:00:00Z',
+        movedBy: 'Ana Costa',
+        previousStage: 'negotiation',
+      }
+    ],
     interactions: [
       {
         id: '5',
@@ -190,7 +322,8 @@ const mockContacts: Contact[] = [
 export function PipelineBoard() {
   const [opportunities, setOpportunities] = useState<Opportunity[]>(mockOpportunities);
 
-  const addOpportunity = (opportunityData: Omit<Opportunity, 'id' | 'status' | 'isLost' | 'createdAt' | 'timeInStage' | 'interactions'>) => {
+  const addOpportunity = (opportunityData: Omit<Opportunity, 'id' | 'status' | 'isLost' | 'createdAt' | 'timeInStage' | 'interactions' | 'stageHistory'>) => {
+    const now = new Date().toISOString();
     const newOpportunity: Opportunity = {
       ...opportunityData,
       id: Date.now().toString(),
@@ -199,17 +332,57 @@ export function PipelineBoard() {
       createdAt: new Date().toISOString().split('T')[0],
       timeInStage: 0,
       interactions: [],
+      stageHistory: [
+        {
+          id: Date.now().toString(),
+          stage: opportunityData.stage,
+          enteredAt: now,
+          movedBy: opportunityData.responsible,
+        }
+      ],
     };
     setOpportunities(prev => [...prev, newOpportunity]);
   };
 
   const moveOpportunity = (opportunityId: string, newStage: Opportunity['stage']) => {
+    const now = new Date().toISOString();
+    
     setOpportunities(prev => 
-      prev.map(opp => 
-        opp.id === opportunityId 
-          ? { ...opp, stage: newStage, timeInStage: 0 }
-          : opp
-      )
+      prev.map(opp => {
+        if (opp.id === opportunityId) {
+          // Calcular dias no estágio atual
+          const currentStageHistory = opp.stageHistory[opp.stageHistory.length - 1];
+          const daysInCurrentStage = Math.floor(
+            (new Date(now).getTime() - new Date(currentStageHistory.enteredAt).getTime()) / (1000 * 60 * 60 * 24)
+          );
+
+          // Atualizar histórico do estágio atual
+          const updatedStageHistory = [
+            ...opp.stageHistory.slice(0, -1),
+            {
+              ...currentStageHistory,
+              leftAt: now,
+              daysInStage: daysInCurrentStage,
+            },
+            // Adicionar novo estágio
+            {
+              id: Date.now().toString(),
+              stage: newStage,
+              enteredAt: now,
+              movedBy: opp.responsible,
+              previousStage: opp.stage,
+            }
+          ];
+
+          return { 
+            ...opp, 
+            stage: newStage, 
+            timeInStage: 0,
+            stageHistory: updatedStageHistory
+          };
+        }
+        return opp;
+      })
     );
   };
 

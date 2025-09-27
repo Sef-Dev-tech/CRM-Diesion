@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AddInteractionDialog } from "@/components/crm/pipeline/AddInteractionDialog";
 import { InteractionHistory } from "@/components/crm/pipeline/InteractionHistory";
+import { StageHistoryTimeline } from "@/components/crm/pipeline/StageHistoryTimeline";
 import { 
   ArrowLeft, 
   Building, 
@@ -30,12 +31,29 @@ const mockOpportunity = {
   email: 'joao@empresaabc.com',
   phone: '(11) 99999-1111',
   value: 15000,
-  stage: 'lead' as 'lead' | 'qualified' | 'proposal' | 'negotiation' | 'closed',
+  stage: 'qualified' as 'lead' | 'qualified' | 'proposal' | 'negotiation' | 'closed',
   status: 'em-andamento' as 'em-andamento' | 'perdida' | 'ganha',
   isLost: false,
   createdAt: '2024-01-15',
   responsible: 'Ana Costa',
   timeInStage: 3,
+  stageHistory: [
+    {
+      id: '1',
+      stage: 'lead' as 'lead' | 'qualified' | 'proposal' | 'negotiation' | 'closed',
+      enteredAt: '2024-06-26T09:00:00Z',
+      leftAt: '2024-06-28T14:30:00Z',
+      daysInStage: 2,
+      movedBy: 'Ana Costa',
+    },
+    {
+      id: '2',
+      stage: 'qualified' as 'lead' | 'qualified' | 'proposal' | 'negotiation' | 'closed',
+      enteredAt: '2024-06-28T14:30:00Z',
+      movedBy: 'Ana Costa',
+      previousStage: 'lead' as 'lead' | 'qualified' | 'proposal' | 'negotiation' | 'closed',
+    }
+  ],
   interactions: [
     {
       id: '1',
@@ -253,8 +271,9 @@ export function OpportunityDetail() {
           {/* Área Principal com Abas */}
           <div className="lg:col-span-2">
             <Tabs defaultValue="historico" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="historico">Histórico</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="historico">Interações</TabsTrigger>
+                <TabsTrigger value="movimentacao">Movimentação</TabsTrigger>
                 <TabsTrigger value="contatos">Contatos</TabsTrigger>
                 <TabsTrigger value="produtos">Produtos</TabsTrigger>
                 <TabsTrigger value="documentos">Documentos</TabsTrigger>
@@ -275,6 +294,13 @@ export function OpportunityDetail() {
                     />
                   </CardContent>
                 </Card>
+              </TabsContent>
+
+              <TabsContent value="movimentacao" className="mt-4">
+                <StageHistoryTimeline 
+                  stageHistory={opportunity.stageHistory}
+                  currentStage={opportunity.stage}
+                />
               </TabsContent>
 
               <TabsContent value="contatos" className="mt-4">
