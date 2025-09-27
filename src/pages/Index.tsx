@@ -10,8 +10,9 @@ import { AccountsPage } from "@/components/crm/accounts/AccountsPage";
 import { ContactsPage } from "@/components/crm/contacts/ContactsPage";
 import { PropertiesPage } from "@/components/crm/properties/PropertiesPage";
 import { UsersPage } from "@/components/crm/users/UsersPage";
+import { StagesManagement } from "@/components/crm/pipeline/StagesManagement";
 import { useAuth } from "@/hooks/useAuth";
-import { BarChart3, Kanban, Users, Building, UserCheck, Home } from "lucide-react";
+import { BarChart3, Kanban, Users, Building, UserCheck, Home, Settings } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const Index = () => {
@@ -35,7 +36,7 @@ const Index = () => {
       {/* Main Content */}
       <main className="p-6">
         <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className={`grid w-full ${isAdmin ? 'max-w-3xl grid-cols-6' : 'max-w-2xl grid-cols-5'} bg-muted`}>
+          <TabsList className={`grid w-full ${isAdmin ? 'max-w-4xl grid-cols-7' : 'max-w-2xl grid-cols-5'} bg-muted`}>
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
               Dashboard
@@ -60,6 +61,12 @@ const Index = () => {
               <TabsTrigger value="users" className="flex items-center gap-2">
                 <UserCheck className="h-4 w-4" />
                 Usuários
+              </TabsTrigger>
+            )}
+            {isAdmin && (
+              <TabsTrigger value="stages" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Etapas
               </TabsTrigger>
             )}
           </TabsList>
@@ -112,6 +119,12 @@ const Index = () => {
             {isAdmin && (
               <TabsContent value="users" className="space-y-6">
                 <UsersPage />
+              </TabsContent>
+            )}
+
+            {isAdmin && (
+              <TabsContent value="stages" className="space-y-6">
+                <StagesManagement />
               </TabsContent>
             )}
           </div>
