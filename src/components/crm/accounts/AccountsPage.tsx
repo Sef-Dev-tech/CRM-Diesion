@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AddAccountDialog } from "./AddAccountDialog";
+import { EditAccountDialog } from "./EditAccountDialog";
 import { Account } from "./types";
 import { Building2, MapPin, User, Grid3X3, List } from "lucide-react";
 
@@ -37,6 +38,16 @@ export function AccountsPage() {
       createdAt: new Date().toISOString().split('T')[0],
     };
     setAccounts(prev => [...prev, newAccount]);
+  };
+
+  const updateAccount = (accountId: string, accountData: Omit<Account, 'id' | 'createdAt'>) => {
+    setAccounts(prev => 
+      prev.map(account => 
+        account.id === accountId 
+          ? { ...account, ...accountData }
+          : account
+      )
+    );
   };
 
   return (
@@ -138,10 +149,11 @@ export function AccountsPage() {
                     </div>
                   </div>
                   
-                  <div className="pt-2 border-t">
+                  <div className="pt-2 border-t flex items-center justify-between">
                     <p className="text-xs text-muted-foreground">
                       Criado em {new Date(account.createdAt).toLocaleDateString('pt-BR')}
                     </p>
+                    <EditAccountDialog account={account} onUpdateAccount={updateAccount} />
                   </div>
                 </div>
               </Card>
@@ -158,6 +170,7 @@ export function AccountsPage() {
                   <TableHead>Responsável</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Data</TableHead>
+                  <TableHead>Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -174,6 +187,9 @@ export function AccountsPage() {
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {new Date(account.createdAt).toLocaleDateString('pt-BR')}
+                    </TableCell>
+                    <TableCell>
+                      <EditAccountDialog account={account} onUpdateAccount={updateAccount} />
                     </TableCell>
                   </TableRow>
                 ))}

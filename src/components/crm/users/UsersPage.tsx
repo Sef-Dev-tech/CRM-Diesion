@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AddUserDialog } from "./AddUserDialog";
+import { EditUserDialog } from "./EditUserDialog";
 import { User } from "./types";
 import { Mail, User as UserIcon, Shield, Users as UsersIcon, Grid3X3, List } from "lucide-react";
 
@@ -45,6 +46,16 @@ export function UsersPage() {
       createdAt: new Date().toISOString(),
     };
     setUsers([...users, newUser]);
+  };
+
+  const handleUpdateUser = (userId: string, userData: Omit<User, 'id' | 'createdAt'>) => {
+    setUsers(prev => 
+      prev.map(user => 
+        user.id === userId 
+          ? { ...user, ...userData }
+          : user
+      )
+    );
   };
 
   const getRoleBadgeVariant = (role: string) => {
@@ -92,10 +103,13 @@ export function UsersPage() {
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <CardTitle className="text-lg">{user.name}</CardTitle>
-                  <Badge variant={getRoleBadgeVariant(user.role)} className="ml-2">
-                    <Shield className="h-3 w-3 mr-1" />
-                    {getRoleLabel(user.role)}
-                  </Badge>
+                  <div className="flex items-center gap-1">
+                    <Badge variant={getRoleBadgeVariant(user.role)} className="ml-2">
+                      <Shield className="h-3 w-3 mr-1" />
+                      {getRoleLabel(user.role)}
+                    </Badge>
+                    <EditUserDialog user={user} onUpdateUser={handleUpdateUser} />
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -131,6 +145,7 @@ export function UsersPage() {
                 <TableHead>Departamento</TableHead>
                 <TableHead>Função</TableHead>
                 <TableHead>Data</TableHead>
+                <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -147,6 +162,9 @@ export function UsersPage() {
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
                     {new Date(user.createdAt).toLocaleDateString('pt-BR')}
+                  </TableCell>
+                  <TableCell>
+                    <EditUserDialog user={user} onUpdateUser={handleUpdateUser} />
                   </TableCell>
                 </TableRow>
               ))}

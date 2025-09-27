@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AddContactDialog } from "./AddContactDialog";
+import { EditContactDialog } from "./EditContactDialog";
 import { Contact, Account } from "../accounts/types";
 import { User, Mail, Phone, Building2, Grid3X3, List } from "lucide-react";
 
@@ -59,6 +60,16 @@ export function ContactsPage() {
       createdAt: new Date().toISOString().split('T')[0],
     };
     setContacts(prev => [...prev, newContact]);
+  };
+
+  const updateContact = (contactId: string, contactData: Omit<Contact, 'id' | 'createdAt'>) => {
+    setContacts(prev => 
+      prev.map(contact => 
+        contact.id === contactId 
+          ? { ...contact, ...contactData }
+          : contact
+      )
+    );
   };
 
   const getAccountName = (accountId: string) => {
@@ -174,10 +185,11 @@ export function ContactsPage() {
                     </div>
                   )}
                   
-                  <div className="pt-2 border-t">
+                  <div className="pt-2 border-t flex items-center justify-between">
                     <p className="text-xs text-muted-foreground">
                       Criado em {new Date(contact.createdAt).toLocaleDateString('pt-BR')}
                     </p>
+                    <EditContactDialog contact={contact} accounts={accounts} onUpdateContact={updateContact} />
                   </div>
                 </div>
               </Card>
@@ -194,6 +206,7 @@ export function ContactsPage() {
                   <TableHead>Empresa</TableHead>
                   <TableHead>Origem</TableHead>
                   <TableHead>Data</TableHead>
+                  <TableHead>Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -212,6 +225,9 @@ export function ContactsPage() {
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {new Date(contact.createdAt).toLocaleDateString('pt-BR')}
+                    </TableCell>
+                    <TableCell>
+                      <EditContactDialog contact={contact} accounts={accounts} onUpdateContact={updateContact} />
                     </TableCell>
                   </TableRow>
                 ))}
